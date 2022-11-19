@@ -23,6 +23,8 @@ list_test = ['alexnet',
 # price per gpu
 
 list_system = {
+    "i7-7700K-NVIDIA_GeForce_GT_1030": ([1], ["GTX 1030"], 75, 368),
+    "NVIDIA_A100-SXM4-80GB": ([1], ["NVIDIA A100-SXM4-80GB"], 400, 9948),
     "i7-6850K-GeForce_GTX_1080_Ti": ([1], ['GTX 1080Ti'], 250, 892),
     "i7-9750H-GeForce_RTX_2070_with_Max-Q_Design_XLA_TF1_15": ([1], ['RTX 2070 MAX-Q'], 90, 975),
     "i7-9750H-GeForce_RTX_2080_with_Max-Q_Design_XLA_TF1_15": ([1], ['RTX 2080 MAX-Q'], 90, 1032),
@@ -37,12 +39,16 @@ list_system = {
     "3970X-GeForce_RTX_3090_XLA": ([3], ['3x RTX 3090'], 350, 3142),
     "7662-GeForce_RTX_3090": ([1, 2, 4, 8], ['RTX 3090', '2x RTX 3090', '4x RTX 3090', '8x RTX 3090'], 350, 3142),
     "7502-RTX_A6000_XLA_TF1_15": ([1, 2, 4, 8], ['RTX A6000', '2x RTX A6000', '4x RTX A6000', '8x RTX A6000'], 300, 5785),
-    "LambdaCloud-RTX_A6000":  ([1, 2, 4], ['Lambda Cloud — RTX A6000', 'Lambda Cloud — 2x RTX A6000', 'Lambda Cloud — 4x RTX A6000'], 300, 5785)
+    "LambdaCloud-RTX_A6000":  ([1, 2, 4], ['Lambda Cloud — RTX A6000', 'Lambda Cloud — 2x RTX A6000', 'Lambda Cloud — 4x RTX A6000'], 300, 5785),
 }
 
 
 def get_result(path_logs, folder, model):
-    folder_path = glob.glob(path_logs + '/' + folder + '/' + model + '*')[0]
+    print(f'srcrr {path_logs}/{folder}/{model}*')
+    folder_paths = glob.glob(path_logs + '/' + folder + '/' + model + '*')
+    if not folder_paths:
+        return
+    folder_path = folder_paths[0]
     folder_name = folder_path.split('/')[-1]
     batch_size = folder_name.split('-')[-1]
     file_throughput = folder_path + '/throughput/1'
@@ -71,9 +77,12 @@ def create_row_throughput(path_logs, mode, data, precision, key, num_gpu, name, 
 
     for model in list_test:
         if precision == 'fp32':
-            batch_size, throughput = get_result(path_logs, folder_fp32, model)
+            batch_size, throughput = get_result(path_logs, folder_fp32, model) or [None, None]
         else:
-            batch_size, throughput = get_result(path_logs, folder_fp16, model)
+            batch_size, throughput = get_result(path_logs, folder_fp16, model) or [None, None]
+        
+        if not (batch_size and throughput):
+            continue
 
         df.at[name, model] = throughput
 
@@ -97,9 +106,12 @@ def create_row_batch_size(path_logs, mode, data, precision, key, num_gpu, name, 
 
     for model in list_test:
         if precision == 'fp32':
-            batch_size, throughput = get_result(path_logs, folder_fp32, model)
+            batch_size, throughput = get_result(path_logs, folder_fp32, model) or [None, None]
         else:
-            batch_size, throughput = get_result(path_logs, folder_fp16, model)
+            batch_size, throughput = get_result(path_logs, folder_fp16, model)or [None, None]
+        
+        if not (batch_size and throughput):
+            continue
 
         df.at[name, model] = int(batch_size) * num_gpu
 

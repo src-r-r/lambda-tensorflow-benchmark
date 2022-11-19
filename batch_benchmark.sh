@@ -9,7 +9,6 @@ THERMAL_INTERVAL=${5:-1}
 SETTING=${6:-config_all}
 GPU_VENDOR=${7:-nvidia}
 
-
 join_by() {
   local IFS="$1"
   shift
@@ -17,12 +16,11 @@ join_by() {
 }
 
 main() {
-  for gpu in `seq ${MAX_NUM_GPU} -1 ${MIN_NUM_GPU}`; do
-    gpus=`seq 0 1 $((gpu-1))`
+  for gpu in $(seq ${MAX_NUM_GPU} -1 ${MIN_NUM_GPU}); do
+    gpus=$(seq 0 1 $((gpu - 1)))
     gpus=$(join_by , $gpus)
     ./benchmark.sh $gpus $ITERATIONS $NUM_BACHES $THERMAL_INTERVAL $SETTING $GPU_VENDOR
   done
 }
-
 
 main "$@"

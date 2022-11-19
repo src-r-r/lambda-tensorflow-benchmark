@@ -36,7 +36,7 @@ CPU_NAME="$(lscpu | awk '/Model name:/ {
 GPU_NAME="${GPU_NAME// /_}"
 
 CONFIG_NAME="${CPU_NAME}-${GPU_NAME}"
-echo $CONFIG_NAME
+
 
 DATA_DIR="/home/${USER}/imagenet_mini"
 
@@ -159,14 +159,14 @@ run_thermal() {
 run_benchmark() {
   pushd "$SCRIPT_DIR" &>/dev/null
 
+  model=$1
+
   # Example: model=alexnet; alexnet=1536
   eval batch_size=\$$model
   # Example: syn-replicated-fp32-1gpus
   outer_dir="${data_mode}-${variable_update}-${precision}-${num_gpus}gpus"
 
-  echo "## SRCRR running model $model"
   eval tst_batch_size=\$$model
-  echo "## SRCRR tst_batch_size=$tst_batch_size"
 
   local args=()
   args+=("--optimizer=sgd")
@@ -178,6 +178,7 @@ run_benchmark() {
   args+=("--num_batches=$NUM_BATCHES")
   args+=("--data_name=${DATASET_NAMES[$model]}")
   args+=("--all_reduce_spec=nccl")
+  args+=("--allow_growth=True")
 
   if [ $data_mode = real ]; then
     args+=("--data_dir=$DATA_DIR")
@@ -196,8 +197,6 @@ run_benchmark() {
 
   inner_dir="${model}-${batch_size}"
   local throughput_log="${LOG_DIR}/${outer_dir}/${inner_dir}/throughput/${iter}"
-
-  echo "SRCRR construct thermal_log LOG_DIR='${LOG_DIR}' outer_dir='${OUTER_DIR}' inner_dir='${inner_dir}', iter='${iter}'"
 
   local thermal_log="${LOG_DIR}/${outer_dir}/${inner_dir}/thermal/${iter}"
 
@@ -247,7 +246,7 @@ run_benchmark_all() {
   for model in $MODELS; do
     for num_gpus in $(seq ${MAX_NUM_GPU} -1 ${MIN_NUM_GPU}); do
       for iter in $(seq 1 $ITERATIONS); do
-        run_benchmark
+        run_benchmark $model
         sleep 10
       done
     done

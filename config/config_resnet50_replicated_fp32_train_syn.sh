@@ -4,4 +4,4 @@ VARIABLE_UPDATE="replicated"
 PRECISION="fp32"
 RUN_MODE="train"
 DATA_MODE="syn"
-
+resnet50=2
