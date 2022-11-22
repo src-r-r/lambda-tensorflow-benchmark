@@ -24,7 +24,7 @@ list_test = ['alexnet',
 
 list_system = {
     "i7-7700K-NVIDIA_GeForce_GT_1030": ([1], ["GTX 1030"], 75, 368),
-    "NVIDIA_A100-SXM4-80GB": ([1], ["NVIDIA A100-SXM4-80GB"], 400, 9948),
+    "Processor-NVIDIA_A100-SXM4-80GB": ([1], ["NVIDIA A100-SXM4-80GB"], 400, 9948),
     "i7-6850K-GeForce_GTX_1080_Ti": ([1], ['GTX 1080Ti'], 250, 892),
     "i7-9750H-GeForce_RTX_2070_with_Max-Q_Design_XLA_TF1_15": ([1], ['RTX 2070 MAX-Q'], 90, 975),
     "i7-9750H-GeForce_RTX_2080_with_Max-Q_Design_XLA_TF1_15": ([1], ['RTX 2080 MAX-Q'], 90, 1032),
